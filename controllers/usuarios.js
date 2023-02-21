@@ -1,6 +1,7 @@
 const { response, request } = require('express');
 const Usuario = require('../models/usuarios');
-
+const bcryptjs = require('bcryptjs');
+const { validationResult } = require('express-validator');
 
 const getUsuarios = async (req = request, res = response) => {
 
@@ -20,6 +21,9 @@ const postUsuarios = async (req = request, res = response) => {
     const { nombre, correo, password, rol } = req.body;
 
     const usuarioDB = new Usuario({ nombre, correo,  password, rol});
+
+    const salt = bcryptjs.genSaltSync();
+    usuarioDB.password = bcryptjs.hashSync(password, salt);
 
     await usuarioDB.save();
 
