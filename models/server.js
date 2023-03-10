@@ -11,6 +11,7 @@ class Server {
         this.ProductoPath = '/api/productos';
         this.FacturaPath = '/api/facturas';
         this.UsuarioPath = '/api/usuarios';
+        this.AuthPath = '/api/auth';
         this.conectarDB();
         this.middlewares();
         this.routes();
@@ -39,6 +40,7 @@ class Server {
         this.app.use(this.ProductoPath, require('../routes/productos'));
         this.app.use(this.FacturaPath, require('../routes/facturas'));
         this.app.use(this.UsuarioPath, require('../routes/usuarios'));
+        this.app.use(this.AuthPath, require('../routes/auth'));
 
     }
 
