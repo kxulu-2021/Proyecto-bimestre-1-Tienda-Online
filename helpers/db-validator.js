@@ -70,7 +70,17 @@ const existeProductoPorId = async( id ) => {
 
 }
 
-
+const validarStock = async (req, res, next) => {
+    const { id} = req.body;
+    const producto = await Producto.findById(id);
+    if (!producto) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+    if (!producto.stock) {
+      return res.status(400).json({ message: 'El producto está agotado' });
+    }
+    next();
+  };
 
 
 module.exports = {
@@ -81,6 +91,7 @@ module.exports = {
     existeProductoPorId,
     categoriaExiste,
     existeProducto,
-    esProductoValido
+    esProductoValido,
+    validarStock
    
 }
