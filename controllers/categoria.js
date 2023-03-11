@@ -27,25 +27,26 @@ const getCategoriaId = async ( req = request, res = response) =>{
 
 const postCategoria = async (req = request, res = response) => {
     
-    const nombre = req.body.nombre.toUpperCase()
+    const { estado, ...body} = req.body;
+    
+    const categoriaDB = await Categoria.findOne({nombre: body.nombre});
 
-    const categoriaDB = await Categoria.findOne({nombre});
     if (categoriaDB) {
         return res.status(400).json({
-            msg: `la categoria ${categoriaDB.nombre}, ya existe en la db`
-        })
+            msg: `El producto ${categoriaDB.nombre} ya esta en la DB`
+        });
     }
 
     const data = {
-        nombre
+        ...body,
+        nombre: body.nombre.toUpperCase(),
     }
 
-    const categoriaAdd = new Categoria(data);
+    const categoria = new Categoria(data);
+    await categoria.save();
 
-    await categoriaAdd.save();
-
-    res.json({
-        categoriaAdd
+    res.status(201).json({
+        categoria
     });
 }
 

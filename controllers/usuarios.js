@@ -2,6 +2,7 @@ const { response, request } = require('express');
 const Usuario = require('../models/usuarios');
 const bcryptjs = require('bcryptjs');
 const { validationResult } = require('express-validator');
+const Producto = require('../models/productos');
 
 const getUsuarios = async (req = request, res = response) => {
 
@@ -92,9 +93,124 @@ const deleteUsuarios = async (req = request, res = response) => {
     }
 }
 
+const putCarritoDeCompras = async ( req = request, res = response) => {
+    const data = {
+        usuario: req.usuario._id
+    }
+
+    const agregarProducto = await Usuario.findOneAndUpdate(
+        {_id: data.usuario},
+        {$push: { carrito: req.body.producto }},
+        {new : true}
+    )
+    let totalShopCar = 0;
+    const usuario = await Usuario.findOne({_id: data.usuario})
+    const ShopCarUser = usuario.carrito
+    for(let ShopCarProduct of ShopCarUser){
+        const producto = await Producto.findOne({_id: ShopCarProduct})
+        totalShopCar = totalShopCar + producto.precio
+    }
+    const totalUser = await Usuario.findOneAndUpdate(
+        {_id: data.usuario},
+        {total: totalShopCar},
+        {new: true}
+    )
+    res.status(201).json({
+        agregarProducto,
+        totalUser
+    })
+}
+
+const putProductoDelCarrito = async ( req = request, res = response) =>{
+    const productId = req.params.id;
+
+    const data = {
+        usuario: req.usuario._id
+    }
+
+    const usuario = await Usuario.findOne({ _id: data.usuario});
+    const ShopCarProducts = usuario.carrito
+
+    let actualizarShopCar
+    for (let ShopCarProduct of ShopCarProducts){
+        actualizarShopCar = await Usuario.updateOne(
+            {_id: data.usuario},
+            {$pull: {carrito: productId}}
+        )
+    }
+    let totalShopCar = 0;
+    const users = await Usuario.findOne({_id: data.usuario})
+    const ShopCarUser = users.carrito
+    for (let ShopCarProduct of ShopCarUser) {
+        const product = await Producto.findOne({_id: ShopCarProduct})
+        totalShopCar = totalShopCar + product.precio
+    }
+    const totalUser = await Usuario.updateOne(
+        {_id: data.usuario},
+        {total: totalShopCar},
+        {new: true}
+    )
+
+    res.status(410).json({
+        actualizarShopCar,
+        totalUser
+    })
+}
+
+const EmptyShopCar = async(req = request, res = response) => {
+    const {id} = req.params;
+
+    const data = {
+        usuario: req.usuario._id
+    }
+
+    const usuario = await Usuario.findOne({_id: data.usuario});
+    let emptyShopCar = await Usuario.findOneAndUpdate(
+        {_id: data.usuario},
+        {carrito: []},
+        {new: true}
+    )
+    let totalShopCar = 0;
+    const users = await Usuario.findOne({_id: data.usuario})
+    const ShopCarUser = users.carrito
+    for (let ShopCarProduct of ShopCarUser){
+        const producto = await Producto.findOne({_id: ShopCarProduct})
+        totalShopCar = totalShopCar + producto.precio
+    }
+    const totalUser = await Usuario.updateOne(
+        {_id: data.usuario},
+        {total: totalShopCar},
+        {new: true}
+    )
+
+    res.json({
+        emptyShopCar,
+        totalUser
+    })
+}
+
+const getCarritoDeCompras = async (req = request, res = response) => {
+    const {id} = req.params
+
+    const usuario = await Usuario.findOne({_id: id}).populate('carrito', 'nombre')
+    const ShopCarProducts = usuario.carrito
+    const totalShopCar = usuario.total
+
+    res.json({
+        ShopCarProducts,
+        totalShopCar
+    })
+}
+
+
+
 module.exports = {
     getUsuarios,
     postUsuarios,
     putUsuarios,
-    deleteUsuarios
+    deleteUsuarios,
+    putCarritoDeCompras,
+    putProductoDelCarrito,
+    EmptyShopCar,
+    getCarritoDeCompras
 }

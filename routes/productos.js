@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { getProductos, postProductos, putProductos, deleteProductos, ProductosNoDisponibles, getProductoPorCategoria } = require('../controllers/productos');
-const { existeProducto, existeProductoPorId } = require('../helpers/db-validator');
+const { getProductos, postProductos, putProductos, deleteProductos, ProductosNoDisponibles, getProductoPorCategoria, getProductoPorNombre } = require('../controllers/productos');
+const { existeProducto, existeProductoPorId, esProductoValido } = require('../helpers/db-validator');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-jwt');
 const { esAdminRole } = require('../middlewares/validar-role');
@@ -11,6 +11,11 @@ const router = Router();
 router.get('/mostrar', getProductos);
 
 router.get('/productosPorCategoria/:idCategoria', getProductoPorCategoria);
+
+router.get('/productosPorNombre', [
+    check('nombre').custom(esProductoValido),
+    validarCampos
+], getProductoPorNombre);
 
 router.get('/mostrarAgotados',[
     validarJWT,

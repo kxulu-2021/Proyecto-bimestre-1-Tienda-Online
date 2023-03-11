@@ -1,8 +1,9 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { getUsuarios, postUsuarios, putUsuarios, deleteUsuarios } = require('../controllers/usuarios');
-const { emailExiste } = require('../helpers/db-validator');
+const { getUsuarios, postUsuarios, putUsuarios, deleteUsuarios, putCarritoDeCompras, getCarritoDeCompras, putProductoDelCarrito, EmptyShopCar } = require('../controllers/usuarios');
+const { emailExiste, existeUsuarioPorId } = require('../helpers/db-validator');
 const { validarCampos } = require('../middlewares/validar-campos');
+const { validarJWT } = require('../middlewares/validar-jwt');
 
 
 
@@ -30,12 +31,27 @@ router.put('/editar/:id', [
     validarCampos
 ], putUsuarios)
 
-router.delete('/delete/:id', [
+router.delete('/eliminar/:id', [
+    validarJWT,
     check('id', 'No es un ID valido').isMongoId(),
-
+    check('id').custom( existeUsuarioPorId ),
     validarCampos
-], deleteUsuarios)
+] , deleteUsuarios);
 
+router.put('/carrito', [
+    validarJWT,
+], putCarritoDeCompras);
 
+router.get('/mostrar/carrito/:id', [
+    validarJWT,
+], getCarritoDeCompras);
+
+router.put('/delete/carrito/:id', [
+    validarJWT,
+], putProductoDelCarrito);
+
+router.put('/quitar-Productos', [
+    validarJWT,
+], EmptyShopCar);
 
 module.exports = router;

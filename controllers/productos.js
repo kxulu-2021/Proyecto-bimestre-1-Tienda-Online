@@ -16,6 +16,16 @@ const getProductos = async(req = request, res = response) => {
     });
 }
 
+const getProductoPorNombre = async(req = request, res = response) =>{
+    const {nombre} = req.body;
+
+    const producto = await Producto.findOne({nombre}).populate('categoria', 'nombre')
+
+    res.json({
+        producto
+    })
+}
+
 const getProductoPorCategoria = async(req = request, res = response) => {
     const {idCategoria} = req.params; 
     const query = { categoria: idCategoria }
@@ -132,6 +142,7 @@ const obtenerProductosMasVendidos = async (req = request, res = response) => {
 module.exports = {
     getProductos,
     getProductoPorCategoria,
+    getProductoPorNombre,
     ProductosNoDisponibles,
     postProductos,
     putProductos,

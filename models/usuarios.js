@@ -14,6 +14,13 @@ const UsuarioSchema = Schema({
         type: String,
         required: [true, 'La contraseña es obligatoria']
     },
+    carrito: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Producto'
+    }],
+    total: {
+        type: Number
+    },
     rol: {
         type: String,
         required: true,
