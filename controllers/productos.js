@@ -60,7 +60,7 @@ const postProductos = async(req = request, res = response) => {
 
     if (productoEnDB) {
         return res.status(400).json({
-            msg: `El producto ${productoEnDB.nombre} ya esta en la DB`
+            msg: `El producto ${productoEnDB.nombre} ya existe en la DB`
         });
     }
 
@@ -73,6 +73,7 @@ const postProductos = async(req = request, res = response) => {
     await producto.save();
 
     res.status(201).json({
+        msg: 'Producto Creado con exito',
         producto
     });
 }
@@ -88,6 +89,7 @@ const putProductos = async (req = request, res = response) => {
     const productoEdited = await Producto.findByIdAndUpdate(id, Data, {new: true});
 
     res.json({
+        msg: 'Producto Editado',
         productoEdited
     });
 }
